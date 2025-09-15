@@ -59,6 +59,11 @@
   "tools": {
     "mcp__markdown__*": true
   },
+  "permission": {
+    "edit": "allow",
+    "bash": "allow", 
+    "webfetch": "allow"
+  },
   "agent": {
     "plan": {
       "model": "ollamat/gpt-oss:120b"
@@ -82,14 +87,34 @@
      "markdown-pro": {
        "model": "ollamat/gpt-oss:120b",
        "temperature": 0.1,
-       "system": "{file:./prompts/markdown-specialist.md}",
+       "system": "You are a markdown specialist. Help with markdown formatting, structure, and best practices.",
        "tools": {
          "mcp__markdown__*": true
        }
      },
      "news": {
        "model": "ollamat/gpt-oss:120b",
-       "system": "{file:./agent/news.md}"
+       "system": "You are a news analyst. Provide concise, factual summaries of current events and news topics."
+     },
+     "file-analyzer": {
+       "model": "ollamat/gpt-oss:120b",
+       "temperature": 0.1,
+       "system": "You are a file content analyst. Read and summarize verbose files, logs, and documents. Extract key insights while dramatically reducing context usage."
+     },
+     "test-runner": {
+       "model": "ollamat/gpt-oss:120b", 
+       "temperature": 0.1,
+       "system": "You are a test execution specialist. Run tests, capture comprehensive logs, and analyze failures. Provide actionable insights while preserving main conversation context."
+     },
+     "parallel-worker": {
+       "model": "ollamat/gpt-oss:120b",
+       "temperature": 0.1,
+       "system": "You are a parallel execution coordinator. Manage multiple work streams, spawn sub-agents, and consolidate results for git worktree-based parallel development."
+     },
+     "code-analyzer": {
+       "model": "ollamat/gpt-oss:120b",
+       "temperature": 0.1,
+       "system": "You are an elite bug hunting specialist with deep expertise in code analysis, logic tracing, and vulnerability detection. Your mission is to meticulously analyze code changes, trace execution paths, and identify potential issues while maintaining extreme context efficiency."
      }
   }
 }

@@ -467,6 +467,248 @@ Watch as structured planning transforms into shipped code.
 
 ---
 
+## OpenCode Configuration
+
+This project also includes a complete OpenCode configuration in the `.opencode/` directory, providing the same powerful PM system with OpenCode's tool ecosystem.
+
+### OpenCode Setup
+
+1. **Configure OpenCode**:
+   ```bash
+   # The opencode.json file is already configured with:
+   # - Permissions for file operations, bash, and web fetching
+   # - Anthropic provider with Claude models
+   # - MCP server for context7 (live documentation)
+   # - All agents and commands pre-configured
+   ```
+
+2. **Key Features**:
+   - **Live Documentation**: Context7 MCP server provides up-to-date API docs
+   - **All Agents**: Code analyzer, file analyzer, test runner, and parallel worker
+   - **Complete Commands**: All PM commands converted for OpenCode compatibility
+   - **Tool Mapping**: Claude tools mapped to OpenCode equivalents (Read → view, Task → agent, etc.)
+
+3. **Benefits of OpenCode Version**:
+   - **Enhanced Context**: Context7 provides live, version-specific documentation
+   - **MCP Integration**: Access to Model Context Protocol servers
+   - **Tool Ecosystem**: Native OpenCode tool integrations
+   - **Real-time Docs**: Always current API documentation and examples
+
+### Directory Structure Comparison
+
+| Claude Code | OpenCode | Description |
+|-------------|----------|-------------|
+| `.claude/` | `.opencode/` | Main configuration directory |
+| `settings.local.json` | `opencode.json` | Configuration file |
+| `.claude/agents/` | `.opencode/agents/` | Agent definitions |
+| `.claude/commands/` | `.opencode/commands/` | Command definitions |
+| `.claude/context/` | `.opencode/context/` | Project context |
+| `.claude/rules/` | `.opencode/rules/` | Standard patterns |
+| `.claude/scripts/` | `.opencode/scripts/` | Shell scripts |
+
+### Using OpenCode Commands
+
+All commands work the same way with OpenCode:
+
+```bash
+# Initialize PM system
+/pm:init
+
+# Create PRDs and epics
+/pm:prd-new feature-name
+/pm:prd-parse feature-name
+
+# Context management
+/context:create
+/context:prime
+/context:update
+
+# Issue management works identically
+/pm:issue-start 1234
+/pm:status
+/pm:next
+```
+
+### Context7 Integration
+
+The OpenCode configuration includes context7 MCP server for enhanced documentation:
+
+- **Live API Docs**: Always current documentation for frameworks
+- **Code Examples**: Up-to-date examples and patterns  
+- **Version-Specific**: Docs match your project's dependency versions
+- **Automatic**: No manual documentation updates needed
+
+### Migration from Claude Code
+
+If you're using the Claude Code version, both configurations work simultaneously:
+
+1. **Parallel Usage**: Both `.claude/` and `.opencode/` can coexist
+2. **Gradual Migration**: Test OpenCode features while keeping Claude Code working
+3. **Tool Benefits**: Leverage context7 and MCP servers in OpenCode
+4. **Same Workflows**: Identical command structure and functionality
+
+---
+
+## OpenCode Integration: Lessons Learned
+
+Based on real-world setup experience, here are key lessons to ensure smooth OpenCode integration:
+
+### 🚨 Critical Setup Issues to Avoid
+
+#### 1. **Configuration File References**
+**Problem**: Broken file references crash OpenCode
+```json
+// ❌ DON'T: Reference non-existent files
+"system": "{file:./prompts/missing-file.md}"
+```
+**Solution**: 
+- Use inline system prompts or ensure files exist
+- Validate all file paths before testing
+```json
+// ✅ DO: Use inline prompts or verify paths
+"system": "You are a code analyzer specializing in bug detection."
+```
+
+#### 2. **Hard-coded Absolute Paths**
+**Problem**: Non-portable configurations break on other machines
+```json
+// ❌ DON'T: Use absolute paths
+"command": ["uv", "run", "/Users/smian/dotfiles/server.py"]
+```
+**Solution**: Use relative paths or environment variables
+```json
+// ✅ DO: Use relative paths
+"command": ["uv", "run", "./mcp_servers/server.py"]
+// OR: Use environment variables
+"command": ["uv", "run", "${MCP_SERVER_PATH}/server.py"]
+```
+
+#### 3. **Agent Access Confusion**
+**Issue**: Different agent types work differently
+- **Global agents** (`~/.config/opencode/agent/`) work with `--agent` flag
+- **Project agents** (`.opencode/agents/`) may need opencode.json definitions  
+- **JSON-defined agents** work in TUI and CLI
+
+**Solution**: Test agent access patterns during setup:
+```bash
+# Test global agent
+oc run --agent review "test message"
+
+# Test project agent (define in opencode.json)
+oc run --agent code-analyzer "test message"
+```
+
+### 🔧 Directory Structure Clarifications
+
+#### Standard OpenCode vs CCPM Structure
+**OpenCode requires:**
+- Commands: `.opencode/command/*.md` (flat structure)
+- Global commands: `~/.config/opencode/command/*.md`
+
+**CCPM uses extended structure:**
+- Commands: `.opencode/commands/pm/*.md` (nested organization)
+- This is an organizational pattern, not OpenCode requirement
+
+#### File Naming Rules
+- **Command files**: `test.md` → `/test` command
+- **Agent files**: Can be anywhere as `.md` files
+- **Global precedence**: Global configs override project configs
+
+### 🧪 Testing Strategy
+
+#### 1. **Start Simple**
+```bash
+# Test basic functionality first
+oc run "hello world"
+
+# Then test existing agents
+oc run --agent review "analyze this config"
+
+# Finally test custom features
+oc run --agent code-analyzer "custom analysis"
+```
+
+#### 2. **Configuration Validation**
+```bash
+# Validate JSON syntax
+python3 -m json.tool opencode.json > /dev/null
+
+# Check file references exist
+ls -la prompts/referenced-file.md
+
+# Test MCP servers are reachable
+curl http://localhost:3304/v1/models
+```
+
+#### 3. **Debug with Logs**
+```bash
+# Check logs for detailed errors
+tail -f ~/.local/share/opencode/log/*.log
+
+# Common error patterns:
+# - "undefined is not an object (evaluating 'agent.model')"
+# - "bad file reference"
+# - "Failed to change directory"
+```
+
+### 📋 Setup Checklist
+
+#### Pre-Setup Validation
+- [ ] Verify all referenced files exist
+- [ ] Check no absolute paths in configuration
+- [ ] Validate JSON syntax
+- [ ] Test basic `oc` command works
+
+#### During Setup
+- [ ] Start with `oc run "test"` (basic functionality)
+- [ ] Test existing global agents first
+- [ ] Add custom agents incrementally
+- [ ] Validate each addition before proceeding
+
+#### Post-Setup Testing
+- [ ] Test command execution: `/command-name`
+- [ ] Test agent selection: `--agent agent-name`
+- [ ] Verify MCP servers if configured
+- [ ] Test file operations and permissions
+
+### 🎯 Best Practices
+
+#### 1. **Configuration Management**
+- **Environment-specific configs**: Use environment variables for paths
+- **Modular approach**: Start minimal, add features incrementally  
+- **Version control**: Track configuration changes carefully
+
+#### 2. **Documentation First**
+- **Verify against official docs**: Always check https://opencode.ai/docs/
+- **Use Context7 for accuracy**: Resolve conflicts with authoritative sources
+- **Document deviations**: Note when using extended patterns
+
+#### 3. **Error Recovery**
+- **Clean slate testing**: `rm -rf ~/.local/share/opencode` to reset
+- **Incremental debugging**: Add one feature at a time
+- **Log analysis**: Use error logs for systematic troubleshooting
+
+### 🔍 Common Error Solutions
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `bad file reference` | Missing file in `{file:...}` | Create file or use inline prompt |
+| `undefined is not an object` | Agent configuration issue | Check agent model definition |
+| `Failed to change directory` | Path argument confusion | Use proper command syntax |
+| `Unexpected error` | Various config issues | Check logs, validate JSON |
+
+### 💡 Pro Tips
+
+1. **Use Context7**: Query up-to-date OpenCode docs when in doubt
+2. **Global vs Project**: Test both scopes during setup
+3. **Start Conservative**: Begin with basic config, expand gradually
+4. **Validate Early**: Check each configuration change immediately
+5. **Log Everything**: Keep logs open during initial setup
+
+Following these lessons learned will help you avoid the common pitfalls and get OpenCode integrated smoothly with CCPM.
+
+---
+
 ## Support This Project
 
 Claude Code PM was developed at [Automaze](https://automaze.io) **for developers who ship, by developers who ship**.
