@@ -2,6 +2,94 @@
 
 This directory contains opencode configuration that extends Claude Code Project Management (CCPM) with local model support. The system integrates opencode as an interface layer for AI-powered development workflows using local models like gpt-oss:120b.
 
+## Directory Structure
+
+**Note**: OpenCode itself is flexible about directory structure. The structure below is specific to this CCPM (Claude Code Project Management) integration and is not required by standard OpenCode.
+
+### Standard OpenCode Structure
+OpenCode supports this structure:
+```
+project/
+├── opencode.json            # Main configuration file (optional)
+├── .opencode/               # Project-specific OpenCode directory (optional)
+│   └── command/             # Project-specific commands (optional)
+│       └── *.md             # Command files (filename = command name)
+├── prompts/                 # Custom prompt files (optional)
+└── [your files]             # Project files
+```
+
+**Global commands location:**
+```
+~/.config/opencode/
+└── command/                 # Global commands directory
+    └── *.md                 # Global command files
+```
+
+**Command locations:**
+- **Inline**: Commands defined inside `opencode.json` 
+- **Global**: Markdown files in `~/.config/opencode/command/` (can include subfolders)
+- **Project**: Markdown files in `.opencode/command/` (can include subfolders)
+
+**Command directory structure:**
+- **Flat structure**: Commands directly in command folder (e.g., `test.md` → `/test`)
+- **Subfolder support**: Commands organized in subfolders (e.g., `pm/help.md` → `/pm/help`)
+- **Nested organization**: Group related commands by functional area
+
+**Command file naming:**
+- Filename becomes the command name (e.g., `test.md` → `/test` command)
+- Subfolder path included in command name (e.g., `pm/help.md` → `/pm/help` command)
+- Use `.md` extension for markdown command files
+
+### Example Directory Structure
+A typical OpenCode project structure:
+
+```
+.opencode/
+├── opencode.json              # Main configuration file
+├── agents/                    # Optional agent definitions
+│   ├── reviewer.md            # Code review agent
+│   └── assistant.md           # General purpose agent
+├── command/                   # Commands directory
+│   ├── test.md                # Simple command: /test
+│   ├── build.md               # Simple command: /build
+│   └── deploy/                # Namespaced commands
+│       ├── staging.md         # Command: /deploy:staging
+│       └── production.md      # Command: /deploy:production
+├── modes/                     # Optional mode definitions
+│   ├── development.md         # Development mode
+│   └── production.md          # Production mode
+├── rules/                     # Optional behavior rules
+│   ├── code-style.md          # Coding standards
+│   └── patterns.md            # Common patterns
+└── README.md                  # Project documentation
+```
+
+### Key Components
+
+- **opencode.json** - Main configuration with models, providers, and global settings
+- **agents/** - Optional specialized agents for task automation
+- **command/** - Command implementations as markdown files  
+- **modes/** - Optional mode definitions for different workflows
+- **rules/** - Optional behavioral guidelines and patterns
+- **README.md** - Project documentation
+
+### OpenCode Flexibility
+
+**Commands can be located:**
+1. **Inline in opencode.json** - All commands defined in JSON configuration
+2. **Global directory** - Markdown files in `~/.config/opencode/command/`
+3. **Project directory** - Markdown files in `.opencode/command/`
+
+**Agents can be located:**
+1. **Inline in opencode.json** - All agents defined in JSON configuration  
+2. **Separate markdown files** - Individual files anywhere in the project
+3. **Mixed approach** - Some inline, some as files
+
+**Important**: 
+- **Commands** support both flat structure (`.opencode/command/`) and nested subdirectories (`.opencode/commands/pm/`)
+- **Agents** can be defined in JSON (`opencode.json`) or as markdown files anywhere in the project
+- **Flexibility**: OpenCode supports multiple organizational patterns - use what works best for your project
+
 ## Model Configuration
 
 ### Primary Models
@@ -180,6 +268,168 @@ Focus on potential vulnerabilities and provide specific recommendations.
 ```
 
 **Note:** Command name is determined by filename (e.g., `security-audit.md` → `/security-audit` command)
+
+## Commands Reference
+
+*Based on https://opencode.ai/docs/commands*
+
+### Command Creation Methods
+
+**1. Markdown Files**
+Place `.md` files in:
+- Global: `~/.config/opencode/command/` (supports subfolders: `pm/help.md` → `/pm/help`)
+- Project: `.opencode/command/` (supports subfolders: `testing/run.md` → `/testing/run`)
+
+**2. JSON Configuration**
+Define inline in `opencode.json`:
+```json
+{
+  "command": {
+    "command-name": {
+      "template": "Your prompt here",
+      "description": "Brief description",
+      "agent": "agent-name",
+      "model": "model-name"
+    }
+  }
+}
+```
+
+### Command Configuration Options
+
+**Required:**
+- `template` - The prompt sent to the LLM
+
+**Optional:**
+- `description` - Brief explanation shown in TUI
+- `agent` - Which agent executes the command (defaults to "build")
+- `model` - Override default model for this command
+
+### Dynamic Features
+
+**Arguments Placeholder (`$ARGUMENTS`)**
+```markdown
+---
+description: Create a new component
+---
+Create a new React component named $ARGUMENTS with TypeScript support.
+```
+Usage: `/component Button` → Creates component named "Button"
+
+**Shell Command Injection (`!command`)**
+```markdown
+---
+description: Analyze test results
+---
+Here are the current test results:
+!`npm test`
+
+Based on these results, suggest improvements.
+```
+
+**File Content Injection (`@filename`)**
+```markdown
+---
+description: Review component
+---
+Review the component in @src/components/Button.tsx.
+Check for performance issues and suggest improvements.
+```
+
+### Command Examples
+
+**Simple Command:**
+```markdown
+---
+description: Run tests with coverage
+---
+Run the full test suite with coverage report and show any failures.
+Focus on the failing tests and suggest fixes.
+```
+
+**Dynamic Component Creation:**
+```markdown
+---
+description: Create a new component
+agent: build
+model: anthropic/claude-3-5-sonnet-20241022
+---
+Create a new React component named $ARGUMENTS with TypeScript support.
+Include proper typing and basic structure.
+```
+
+**Code Review with File Reference:**
+```markdown
+---
+description: Review specific file
+---
+Review the code in @$ARGUMENTS for:
+- Performance issues
+- Security vulnerabilities
+- Best practices compliance
+```
+
+**Test Analysis with Shell Output:**
+```markdown
+---
+description: Analyze test coverage
+---
+Here are the current test results:
+!`npm test -- --coverage`
+
+Based on these results:
+1. Identify areas with low coverage
+2. Suggest additional test cases
+3. Recommend testing strategies
+```
+
+### Best Practices
+
+**Command Naming:**
+- Use descriptive filenames (filename becomes command name)
+- Use kebab-case for multi-word commands (`code-review.md`)
+- Organize with subfolders for logical grouping
+
+**Subfolder Organization Examples:**
+```
+.opencode/command/
+├── pm/                    # Project management commands
+│   ├── help.md           # → /pm/help
+│   ├── status.md         # → /pm/status
+│   └── init.md           # → /pm/init
+├── testing/              # Testing workflow commands
+│   ├── run.md            # → /testing/run
+│   └── coverage.md       # → /testing/coverage
+└── utils/                # Utility commands
+    ├── format.md         # → /utils/format
+    └── lint.md           # → /utils/lint
+```
+
+**Template Design:**
+- Be specific about desired output format
+- Include context about project conventions
+- Use placeholders for reusable commands
+
+**Dynamic Content:**
+- Combine `$ARGUMENTS` with file injection for flexible workflows
+- Use shell injection for current state analysis
+- Chain multiple dynamic features in single commands
+
+### Command Execution
+
+**Basic Usage:**
+```bash
+/command-name
+```
+
+**With Arguments:**
+```bash
+/component Button
+/review src/utils/helper.js
+```
+
+**In TUI:**
+Commands appear in the command palette and can be executed by typing `/` followed by the command name.
 
 ### Mode Frontmatter Schema
 
@@ -425,20 +675,11 @@ Main `opencode.json` structure:
 
 ## Command Structure
 
-### PM Commands (`/pm:*`)
-Project management workflow commands integrated through CCPM:
-- `/pm:init` - Initialize PM system
-- `/pm:status` - Show current project status
-- `/pm:help` - Display available PM commands
+### Command Implementation
 
-### Context Commands (`/context:*`)
-- `/context:create` - Generate initial project context
-- `/context:update` - Refresh existing context
-- `/context:prime` - Load context into conversation
+OpenCode commands are implemented as markdown files in the `command/` directory. Commands can be organized in subdirectories for namespacing (e.g., `command/pm/help.md` creates `/pm:help`).
 
-### Testing Commands (`/testing:*`)
-- `/testing:prime` - Configure testing framework
-- `/testing:run` - Execute tests with analysis
+For project-specific command documentation, see `CLAUDE.md`.
 
 ## Rules and Patterns
 
