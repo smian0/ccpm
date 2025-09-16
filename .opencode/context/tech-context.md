@@ -1,7 +1,7 @@
 ---
 created: 2025-09-16T00:11:07Z
-last_updated: 2025-09-16T00:11:07Z
-version: 1.0
+last_updated: 2025-09-16T16:15:05Z
+version: 1.2
 author: Claude Code PM System
 ---
 
@@ -35,7 +35,7 @@ author: Claude Code PM System
 - **GitHub CLI**: For GitHub integration
 
 ### Python Dependencies (venv/)
-- **MCP Servers**: Model Context Protocol servers
+- **MCP Servers**: Model Context Protocol servers for enhanced AI capabilities
 - **HTTP Libraries**: For API interactions
 - **JSON Processing**: For configuration handling
 - **Documentation Tools**: For context7 integration
@@ -44,6 +44,7 @@ author: Claude Code PM System
 - **GitHub API**: For issue and repository management
 - **Anthropic API**: For AI model interactions
 - **Context7 MCP**: For live documentation
+- **Local MCP Servers**: Markdown processing and other specialized tools
 
 ## Configuration Files
 
@@ -54,7 +55,7 @@ author: Claude Code PM System
 - **`.claude/commands/**/*.md`**: Command definitions and workflows
 
 ### OpenCode Configuration
-- **`.opencode/opencode.json`**: OpenCode configuration file
+- **`.opencode/opencode.json`**: OpenCode configuration file with MCP server definitions
 - **`.opencode/agents/*.md`**: OpenCode agent definitions
 - **`.opencode/commands/**/*.md`**: OpenCode command definitions
 - **`.opencode/context/*.md`**: OpenCode context files
@@ -125,6 +126,7 @@ author: Claude Code PM System
 - **OpenCode**: Alternative platform with MCP integration
 - **Model Access**: Anthropic Claude models
 - **Tool Integration**: Platform-specific tool mappings
+- **MCP Servers**: Local and remote Model Context Protocol servers for enhanced capabilities
 
 ## Security Considerations
 

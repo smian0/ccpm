@@ -1,7 +1,7 @@
 ---
 created: 2025-09-16T00:11:07Z
-last_updated: 2025-09-16T00:11:07Z
-version: 1.0
+last_updated: 2025-09-16T16:15:05Z
+version: 1.2
 author: Claude Code PM System
 ---
 
@@ -294,6 +294,45 @@ author: Claude Code PM System
 # /pm:epic-start
 # All coordinated together
 ```
+
+## MCP Integration Patterns
+
+### Adapter Pattern for MCP Servers
+**Purpose**: Enable seamless integration of Model Context Protocol servers
+**Implementation**:
+- Local and remote MCP server configuration in `opencode.json`
+- Tool name mapping using wildcards (e.g., `mcp__markdown__*`)
+- Per-agent tool enablement for granular control
+- Automatic tool discovery and registration
+
+**Example**:
+```json
+// In .opencode/opencode.json
+"mcp": {
+  "markdown": {
+    "type": "local",
+    "command": ["uv", "run", "/path/to/server.py"],
+    "enabled": true
+  }
+},
+"tools": {
+  "mcp__markdown__*": true
+}
+```
+
+### Bridge Pattern for Enhanced Capabilities
+**Purpose**: Extend AI agent capabilities through external tools
+**Implementation**:
+- MCP servers provide specialized functionality
+- Agents access tools through standardized interfaces
+- Context preservation across tool boundaries
+- Error handling for network and service failures
+
+**Benefits**:
+- Enhanced document processing capabilities
+- Specialized tool access without platform lock-in
+- Modular extension architecture
+- Consistent tool interface across platforms
 
 ## Security Patterns
 

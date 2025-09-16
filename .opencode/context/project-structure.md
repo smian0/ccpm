@@ -1,7 +1,7 @@
 ---
 created: 2025-09-16T00:11:07Z
-last_updated: 2025-09-16T00:11:07Z
-version: 1.0
+last_updated: 2025-09-16T16:15:05Z
+version: 1.2
 author: Claude Code PM System
 ---
 
@@ -22,24 +22,32 @@ ccpm/
 │   ├── prds/                  # Product requirement documents
 │   ├── rules/                 # Standard patterns and rules
 │   └── scripts/               # Utility scripts
-├── .opencode/                 # OpenCode configuration
-│   ├── agents/                # OpenCode agent definitions
-│   ├── commands/              # OpenCode command definitions
-│   ├── context/               # OpenCode context files
-│   ├── rules/                 # OpenCode rules
-│   └── scripts/               # OpenCode scripts
-├── install/                   # Installation scripts and documentation
-├── server/                    # Server-related files
-├── tests/                     # Test files and specifications
-├── venv/                      # Python virtual environment
-├── .gitignore                 # Git ignore rules
-├── AGENTS.md                  # Agent documentation
-├── CLAUDE.md                  # Symlink to AGENTS.md
-├── COMMANDS.md                # Command documentation
-├── install-ccpm.sh            # Local installation script
-├── LICENSE                    # MIT License
-├── README.md                  # Main project documentation
-└── screenshot.webp            # Project screenshot
+├── .claude-ext/              # Extended Claude Code configuration
+│   ├── agents/               # Additional agents
+│   └── CLAUDE.md             # Extended agent documentation
+├── .opencode/                # OpenCode configuration
+│   ├── agents/               # OpenCode agent definitions
+│   ├── commands/             # OpenCode command definitions
+│   ├── context/              # OpenCode context files
+│   ├── rules/                # OpenCode rules
+│   └── scripts/              # OpenCode scripts
+├── .opencode-ext/            # Extended OpenCode configuration
+│   ├── agents/               # Additional OpenCode agents
+│   └── CLAUDE.md             # Extended OpenCode agent documentation
+├── .serena/                  # Serena configuration
+│   ├── .gitignore           # Serena gitignore
+│   └── project.yml          # Serena project configuration
+├── install/                  # Installation scripts and documentation
+├── tests/                    # Test files and specifications
+├── .gitignore                # Git ignore rules
+├── AGENTS.md                 # Agent documentation
+├── CLAUDE.md                 # Symlink to AGENTS.md
+├── COMMANDS.md               # Command documentation
+├── install-ccpm.sh           # Local installation script
+├── install-ccpm-overrides.sh # Installation override script
+├── LICENSE                   # MIT License
+├── README.md                 # Main project documentation
+└── screenshot.webp           # Project screenshot
 ```
 
 ## Key Directories

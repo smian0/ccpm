@@ -1,7 +1,7 @@
 ---
 created: 2025-09-16T00:11:07Z
-last_updated: 2025-09-16T00:11:07Z
-version: 1.0
+last_updated: 2025-09-16T16:15:05Z
+version: 1.2
 author: Claude Code PM System
 ---
 
@@ -16,15 +16,15 @@ author: Claude Code PM System
 - **Upstream**: https://github.com/automazeio/ccpm.git
 
 ### Recent Commits
-- cb040ee Add migration guide for transitioning from Claude Code to OpenCode
-- 4736926 Add OpenCode configuration and documentation updates for enhanced project management
-- 813498e Add comprehensive OPENCODE-DOCS.md for OpenCode integration with CCPM
-- 9964eb5 Enhance OPENCODE.md documentation for command structure and usage
-- 9a226ab Add opencode configuration files for AI-powered development workflows
+- 6643550 Refactor agent installation process in install-ccpm.sh
+- 94a246a Add new CLAUDE.md files and update .gitignore
+- f339a4a Refactor installation scripts and enhance project setup
+- d3b4e3f Add comprehensive context and project documentation files for CCPM
+- 4f1f7e7 Add installation and override scripts for enhanced project setup
 
 ### Outstanding Changes
-- Modified: `.claude/settings.local.json`
-- Modified: `.opencode/opencode.json`
+- Modified: `install-ccpm.sh`
+- Untracked: `news-2025-09-16.md`
 
 ## Project Overview
 This is the Claude Code PM (CCPM) project - a comprehensive project management system designed for AI-assisted software development. The system provides structured workflows for transforming product requirements into shipped code through GitHub issues, Git worktrees, and parallel AI agent execution.
