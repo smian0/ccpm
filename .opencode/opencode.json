@@ -42,6 +42,9 @@
           "name": "DeepSeek V3.1 671B (Turbo)"
         }
       }
+    },
+    "zhipuai": {
+      "api": "https://api.z.ai/api/coding/paas/v4"
     }
   },
   "mcp": {
@@ -115,6 +118,11 @@
        "model": "ollamat/gpt-oss:120b",
        "temperature": 0.1,
        "system": "You are an elite bug hunting specialist with deep expertise in code analysis, logic tracing, and vulnerability detection. Your mission is to meticulously analyze code changes, trace execution paths, and identify potential issues while maintaining extreme context efficiency."
+     },
+     "zai-test": {
+       "model": "zhipuai/glm-4.5",
+       "temperature": 0.1,
+       "system": "You are a helpful AI assistant powered by GLM-4.5."
      }
   }
 }
