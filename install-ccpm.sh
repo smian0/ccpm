@@ -4,7 +4,8 @@
 # Installs both Claude Code and OpenCode configurations
 # Usage: ./install-ccpm.sh [target-directory]
 
-CCPM_SOURCE="/Users/smian/github-smian0/ccpm"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+CCPM_SOURCE="${CCPM_SOURCE:-$SCRIPT_DIR}"  # Allow override via env var, default to script location
 TARGET_DIR="${1:-.}"
 
 if [ ! -d "$CCPM_SOURCE" ]; then
@@ -20,6 +21,31 @@ fi
 echo "🚀 Installing CCPM Dual CLI to $TARGET_DIR"
 echo "📂 Source: $CCPM_SOURCE"
 echo ""
+
+# Backup existing configurations if they exist
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+BACKUP_MADE=false
+
+if [ -d "$TARGET_DIR/.claude" ]; then
+    echo "📦 Backing up existing .claude directory..."
+    BACKUP_DIR="$TARGET_DIR/.claude.backup.$TIMESTAMP"
+    cp -r "$TARGET_DIR/.claude" "$BACKUP_DIR"
+    echo "✅ Backed up to: $BACKUP_DIR"
+    BACKUP_MADE=true
+fi
+
+if [ -d "$TARGET_DIR/.opencode" ]; then
+    echo "📦 Backing up existing .opencode directory..."
+    BACKUP_DIR="$TARGET_DIR/.opencode.backup.$TIMESTAMP"
+    cp -r "$TARGET_DIR/.opencode" "$BACKUP_DIR"
+    echo "✅ Backed up to: $BACKUP_DIR"
+    BACKUP_MADE=true
+fi
+
+if [ "$BACKUP_MADE" = true ]; then
+    echo "💾 Backups created with timestamp: $TIMESTAMP"
+    echo ""
+fi
 
 # Check CLI availability
 echo "🔍 Checking CLI availability..."
@@ -136,4 +162,12 @@ echo "📖 Full configuration installed:"
 echo "   .claude/       (Claude Code configuration with file-analyzer override)"
 echo "   .opencode/     (OpenCode configuration with file-analyzer agent)" 
 echo ""
+
+if [ "$BACKUP_MADE" = true ]; then
+    echo "💡 Restore backups if needed:"
+    echo "   mv $TARGET_DIR/.claude.backup.$TIMESTAMP $TARGET_DIR/.claude"
+    echo "   mv $TARGET_DIR/.opencode.backup.$TIMESTAMP $TARGET_DIR/.opencode"
+    echo ""
+fi
+
 echo "✅ Complete setup - all files copied and agents overridden"
