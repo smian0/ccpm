@@ -60,25 +60,25 @@ else
     echo "⚠️  OpenCode configuration not found, skipping"
 fi
 
-# Override file-analyzer agents in main directories
-echo "🤖 Installing file-analyzer agent overrides..."
+# Override extensions - copy all files from ext directories
+echo "🤖 Installing agent overrides..."
 
-# Override Claude Code file-analyzer in main .claude/agents directory
-if [ -f "$CCPM_SOURCE/.claude-ext/agents/file-analyzer.md" ]; then
-    mkdir -p "$TARGET_DIR/.claude/agents"
-    cp "$CCPM_SOURCE/.claude-ext/agents/file-analyzer.md" "$TARGET_DIR/.claude/agents/"
-    echo "✅ Claude Code file-analyzer agent overridden"
+# Override Claude Code extensions
+if [ -d "$CCPM_SOURCE/.claude-ext" ]; then
+    mkdir -p "$TARGET_DIR/.claude"
+    cp -r "$CCPM_SOURCE/.claude-ext/"* "$TARGET_DIR/.claude/"
+    echo "✅ Claude Code extensions overridden"
 else
-    echo "⚠️  Claude Code file-analyzer override not found, skipping"
+    echo "⚠️  Claude Code extensions not found, skipping"
 fi
 
-# Install OpenCode file-analyzer in main .opencode/agents directory
-if [ -f "$CCPM_SOURCE/.opencode-ext/agents/file-analyzer.md" ]; then
-    mkdir -p "$TARGET_DIR/.opencode/agents"
-    cp "$CCPM_SOURCE/.opencode-ext/agents/file-analyzer.md" "$TARGET_DIR/.opencode/agents/"
-    echo "✅ OpenCode file-analyzer agent installed"
+# Override OpenCode extensions  
+if [ -d "$CCPM_SOURCE/.opencode-ext" ]; then
+    mkdir -p "$TARGET_DIR/.opencode"
+    cp -r "$CCPM_SOURCE/.opencode-ext/"* "$TARGET_DIR/.opencode/"
+    echo "✅ OpenCode extensions overridden"
 else
-    echo "⚠️  OpenCode file-analyzer agent not found, skipping"
+    echo "⚠️  OpenCode extensions not found, skipping"
 fi
 
 # Copy documentation files
@@ -90,10 +90,7 @@ cp "$CCPM_SOURCE/COMMANDS.md" "$TARGET_DIR/" 2>/dev/null || echo "⚠️  COMMAN
 # (Full configuration copied, ready to use)
 echo "✅ Full configuration installed - ready to use"
 
-# Apply overrides if available
-echo "🔧 Applying overrides..."
-cd "$TARGET_DIR"
-bash "$CCPM_SOURCE/install-ccpm-overrides.sh"
+# Extensions already applied above via generic copying
 
 echo ""
 echo "✅ CCPM Dual CLI installation complete!"
