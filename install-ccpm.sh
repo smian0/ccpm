@@ -42,15 +42,44 @@ fi
 
 echo ""
 
-# Copy Claude Code configuration (README only)
+# Copy full Claude Code configuration
 echo "📁 Copying Claude Code configuration (.claude)..."
-mkdir -p "$TARGET_DIR/.claude"
-find "$CCPM_SOURCE/.claude" -name "README*" -type f -exec cp {} "$TARGET_DIR/.claude/" \; 2>/dev/null || echo "⚠️  No README files found in .claude, skipping"
+if [ -d "$CCPM_SOURCE/.claude" ]; then
+    cp -r "$CCPM_SOURCE/.claude" "$TARGET_DIR/"
+    echo "✅ Claude Code configuration copied"
+else
+    echo "⚠️  Claude Code configuration not found, skipping"
+fi
 
-# Copy OpenCode configuration (README only)
+# Copy full OpenCode configuration  
 echo "📁 Copying OpenCode configuration (.opencode)..."
-mkdir -p "$TARGET_DIR/.opencode"
-find "$CCPM_SOURCE/.opencode" -name "README*" -type f -exec cp {} "$TARGET_DIR/.opencode/" \; 2>/dev/null || echo "⚠️  No README files found in .opencode, skipping"
+if [ -d "$CCPM_SOURCE/.opencode" ]; then
+    cp -r "$CCPM_SOURCE/.opencode" "$TARGET_DIR/"
+    echo "✅ OpenCode configuration copied"
+else
+    echo "⚠️  OpenCode configuration not found, skipping"
+fi
+
+# Override file-analyzer agents in main directories
+echo "🤖 Installing file-analyzer agent overrides..."
+
+# Override Claude Code file-analyzer in main .claude/agents directory
+if [ -f "$CCPM_SOURCE/.claude-ext/agents/file-analyzer.md" ]; then
+    mkdir -p "$TARGET_DIR/.claude/agents"
+    cp "$CCPM_SOURCE/.claude-ext/agents/file-analyzer.md" "$TARGET_DIR/.claude/agents/"
+    echo "✅ Claude Code file-analyzer agent overridden"
+else
+    echo "⚠️  Claude Code file-analyzer override not found, skipping"
+fi
+
+# Install OpenCode file-analyzer in main .opencode/agents directory
+if [ -f "$CCPM_SOURCE/.opencode-ext/agents/file-analyzer.md" ]; then
+    mkdir -p "$TARGET_DIR/.opencode/agents"
+    cp "$CCPM_SOURCE/.opencode-ext/agents/file-analyzer.md" "$TARGET_DIR/.opencode/agents/"
+    echo "✅ OpenCode file-analyzer agent installed"
+else
+    echo "⚠️  OpenCode file-analyzer agent not found, skipping"
+fi
 
 # Copy documentation files
 echo "📄 Copying documentation..."
@@ -58,13 +87,13 @@ cp "$CCPM_SOURCE/AGENTS.md" "$TARGET_DIR/" 2>/dev/null || echo "⚠️  AGENTS.m
 cp "$CCPM_SOURCE/COMMANDS.md" "$TARGET_DIR/" 2>/dev/null || echo "⚠️  COMMANDS.md not found, skipping"
 
 # Skip CLAUDE.md symlink and PM system initialization
-# (Only copying README files, not full directory structures)
-echo "⚠️  Skipping CLAUDE.md symlink and PM system initialization (README-only installation)"
+# (Full configuration copied, ready to use)
+echo "✅ Full configuration installed - ready to use"
 
 # Apply overrides if available
 echo "🔧 Applying overrides..."
 cd "$TARGET_DIR"
-bash "$CCPM_SOURCE/apply-overrides.sh"
+bash "$CCPM_SOURCE/install-ccpm-overrides.sh"
 
 echo ""
 echo "✅ CCPM Dual CLI installation complete!"
@@ -106,10 +135,8 @@ if [ "$OPENCODE_AVAILABLE" = true ]; then
 fi
 
 echo ""
-echo "📖 Documentation installed:"
-echo "   .claude/README*   (Claude Code documentation)"
-echo "   .opencode/README* (OpenCode documentation)"
+echo "📖 Full configuration installed:"
+echo "   .claude/       (Claude Code configuration with file-analyzer override)"
+echo "   .opencode/     (OpenCode configuration with file-analyzer agent)" 
 echo ""
-echo "⚠️  Note: Only README files installed - full configuration not copied"
-echo "    For full setup, copy configuration files manually from:"
-echo "    Source: $CCPM_SOURCE"
+echo "✅ Complete setup - all files copied and agents overridden"
