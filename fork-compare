@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# CCPM Fork Comparison Tool
+# Compares fork repository with upstream using interactive tree view
+
+echo "🔄 Generating fork vs upstream comparison report..."
+node generate-fork-comparison.js

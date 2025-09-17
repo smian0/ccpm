@@ -1,2 +1,6 @@
 .DS_Store
 tests/test-install
+
+# Generated diff reports
+override-diff-report.html
+node_modules/

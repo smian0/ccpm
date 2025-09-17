@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# CCPM Diff Report Generator
+# Compares .claude-ext overrides with .claude base files using Monaco Editor
+
+echo "🔄 Generating CCPM override diff report..."
+node generate-diff-report.js
