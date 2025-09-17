@@ -1,0 +1,14 @@
+{
+    "mcpServers": {
+      "playwright": {
+        "args": [
+          "@playwright/mcp@latest"
+        ],
+        "command": "npx",
+        "description": "Browser automation & E2E testing - real browser interaction, visual testing",
+        "purpose": "browser-testing",
+        "scope": "ui"
+      }
+    }
+  }
+  

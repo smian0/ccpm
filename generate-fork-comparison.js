@@ -177,7 +177,7 @@ function fetchFileContents(changes) {
             
             if (forkContent !== null) {
                 fileContents[filePath] = {
-                    upstream: upstreamContent || '// This file does not exist in upstream',
+                    upstream: upstreamContent || '',
                     fork: forkContent
                 };
             }
@@ -671,7 +671,7 @@ function generateHtmlReport(upstreamFiles, forkFiles, changes) {
                     const fileData = window.fileContents && window.fileContents[filePath];
                     
                     if (fileStatus === 'A') {
-                        originalContent = '// This file does not exist in upstream';
+                        originalContent = fileData ? fileData.upstream : '';
                         modifiedContent = fileData ? fileData.fork : 'File content not available';
                     } else {
                         originalContent = fileData ? fileData.upstream : 'Upstream content not available';
@@ -708,8 +708,16 @@ function generateHtmlReport(upstreamFiles, forkFiles, changes) {
                         language = languageMap[extension];
                     }
                     
-                    const originalModel = monaco.editor.createModel(originalContent, language);
-                    const modifiedModel = monaco.editor.createModel(modifiedContent, language);
+                    const originalModel = monaco.editor.createModel(
+                        originalContent, 
+                        language,
+                        monaco.Uri.parse('file:///' + filePath + '-original')
+                    );
+                    const modifiedModel = monaco.editor.createModel(
+                        modifiedContent, 
+                        language,
+                        monaco.Uri.parse('file:///' + filePath + '-modified')
+                    );
                     
                     diffEditor.setModel({
                         original: originalModel,
