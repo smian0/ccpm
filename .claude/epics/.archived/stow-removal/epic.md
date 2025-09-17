@@ -1,8 +1,10 @@
 ---
 name: stow-removal
-status: backlog
+status: completed
 created: 2025-09-17T00:07:13Z
-progress: 0%
+updated: 2025-09-17T00:24:27Z
+completed: 2025-09-17T00:24:27Z
+progress: 100%
 prd: .claude/prds/stow-removal.md
 github: [Will be updated when synced to GitHub]
 ---

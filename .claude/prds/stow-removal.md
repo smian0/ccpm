@@ -1,7 +1,7 @@
 ---
 name: stow-removal
 description: Remove stowing setup and related configurations since OpenCode is now global
-status: backlog
+status: complete
 created: 2025-09-17T00:04:32Z
 ---
 
