@@ -94,7 +94,7 @@ function renderTreeNode(name, node, depth = 0) {
     const statusIcon = getStatusIcon(node.status);
     const statusClass = getStatusClass(node.status);
     
-    let html = `<div class="tree-node ${statusClass}" data-path="${node.path}" data-type="${node.type}">`;
+    let html = `<div class="tree-node ${statusClass}" data-path="${node.path}" data-type="${node.type}" data-status="${node.status}">`;
     html += `<div class="tree-item" style="padding-left: ${depth * 20}px;">`;
     
     if (isDirectory && Object.keys(node.children).length > 0) {
@@ -146,8 +146,52 @@ function getStatusClass(status) {
     }
 }
 
+function getFileContent(filePath, ref) {
+    try {
+        // For HEAD, use filesystem to properly handle symlinks
+        if (ref === 'HEAD') {
+            if (fs.existsSync(filePath)) {
+                return fs.readFileSync(filePath, 'utf8');
+            } else {
+                return null;
+            }
+        }
+        
+        // For other refs, use git show (upstream may not have symlinks)
+        const output = execSync(`git show ${ref}:"${filePath}"`, { encoding: 'utf8' });
+        return output;
+    } catch (error) {
+        // File doesn't exist in this ref or other error
+        return null;
+    }
+}
+
+function fetchFileContents(changes) {
+    console.log('📄 Fetching file contents for diffs...');
+    const fileContents = {};
+    
+    Object.entries(changes).forEach(([filePath, status]) => {
+        if (status === 'A' || status === 'M') {
+            const upstreamContent = getFileContent(filePath, 'upstream/main');
+            const forkContent = getFileContent(filePath, 'HEAD');
+            
+            if (forkContent !== null) {
+                fileContents[filePath] = {
+                    upstream: upstreamContent || '// This file does not exist in upstream',
+                    fork: forkContent
+                };
+            }
+        }
+    });
+    
+    return fileContents;
+}
+
 function generateHtmlReport(upstreamFiles, forkFiles, changes) {
     console.log('🎨 Generating fork comparison report...');
+    
+    // Fetch file contents for diffs
+    const fileContents = fetchFileContents(changes);
     
     // Build trees
     const upstreamTree = buildFileTree(upstreamFiles, {});
@@ -342,6 +386,89 @@ function generateHtmlReport(upstreamFiles, forkFiles, changes) {
                 grid-template-columns: 1fr;
             }
         }
+        
+        /* Modal Styles for Diff Display */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            width: 95vw;
+            height: 90vh;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e1e4e8;
+            background: #f6f8fa;
+        }
+        .modal-header h3 {
+            margin: 0;
+            color: #24292e;
+            font-size: 16px;
+        }
+        .modal-close {
+            cursor: pointer;
+            font-size: 24px;
+            color: #586069;
+            font-weight: bold;
+            line-height: 1;
+        }
+        .modal-close:hover {
+            color: #24292e;
+        }
+        #diffContainer {
+            padding: 20px;
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Click indicators for changed files */
+        .tree-node[data-type="file"][data-status="A"] .tree-name,
+        .tree-node[data-type="file"][data-status="M"] .tree-name {
+            cursor: pointer;
+            position: relative;
+        }
+        .tree-node[data-type="file"][data-status="A"]:hover .tree-name,
+        .tree-node[data-type="file"][data-status="M"]:hover .tree-name {
+            text-decoration: underline;
+            font-weight: 500;
+        }
+        
+        /* Visual feedback for clickable changed files */
+        .tree-node[data-type="file"][data-status="A"] .tree-name::after,
+        .tree-node[data-type="file"][data-status="M"] .tree-name::after {
+            content: " 🔍";
+            opacity: 0.6;
+            font-size: 10px;
+            margin-left: 4px;
+        }
     </style>
 </head>
 <body>
@@ -442,6 +569,31 @@ function generateHtmlReport(upstreamFiles, forkFiles, changes) {
         CCPM Fork Comparison Tool - Interactive repository tree diff viewer
     </div>
 
+    <!-- Diff Modal -->
+    <div id="diffModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">File Diff</h3>
+                <span class="modal-close" onclick="closeDiff()">×</span>
+            </div>
+            <div id="diffContainer"></div>
+        </div>
+    </div>
+
+    <!-- Monaco Editor -->
+    <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
+    <script>
+        // File contents for diff display - embedded using base64 encoding to avoid escaping issues
+        window.fileContents = {};
+        ${Object.entries(fileContents).map(([filePath, content]) => {
+            const upstreamB64 = Buffer.from(content.upstream || '').toString('base64');
+            const forkB64 = Buffer.from(content.fork || '').toString('base64');
+            return `window.fileContents[${JSON.stringify(filePath)}] = {
+            upstream: atob(${JSON.stringify(upstreamB64)}),
+            fork: atob(${JSON.stringify(forkB64)})
+        };`;
+        }).join('\n        ')}
+    </script>
     <script>
         // Tree expansion/collapse functionality
         document.addEventListener('click', function(e) {
@@ -452,6 +604,152 @@ function generateHtmlReport(upstreamFiles, forkFiles, changes) {
                     children.style.display = isExpanded ? 'none' : 'block';
                     e.target.textContent = isExpanded ? '▶' : '▼';
                 }
+            }
+        });
+        
+        // Enhanced click handling for both tree navigation and diff display
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('tree-name')) {
+                const treeNode = e.target.closest('.tree-node');
+                const fileType = treeNode?.dataset.type;
+                const fileStatus = treeNode?.dataset.status;
+                const filePath = treeNode?.dataset.path;
+                
+                if (fileType === 'directory') {
+                    // Handle folder expansion/collapse
+                    const children = treeNode.querySelector('.tree-children');
+                    if (children) {
+                        const isExpanded = children.style.display !== 'none';
+                        children.style.display = isExpanded ? 'none' : 'block';
+                        
+                        // Update the toggle icon if it exists
+                        const toggle = treeNode.querySelector('.tree-toggle');
+                        if (toggle) {
+                            toggle.textContent = isExpanded ? '▶' : '▼';
+                        }
+                    }
+                } else if (fileType === 'file' && (fileStatus === 'A' || fileStatus === 'M') && filePath) {
+                    // Handle file clicks for diff display (only for changed files)
+                    e.stopPropagation();
+                    showDiff(filePath, fileStatus);
+                }
+            }
+        });
+        
+        // Diff modal functions
+        async function showDiff(filePath, fileStatus) {
+            const modal = document.getElementById('diffModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const diffContainer = document.getElementById('diffContainer');
+            
+            try {
+                modalTitle.innerHTML = '<span class="status-' + fileStatus.toLowerCase() + '">' + (fileStatus === 'A' ? '🟢 Added' : '🟡 Modified') + '</span>: ' + filePath;
+                diffContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">Loading diff...</div>';
+                
+                // Show modal with smooth transition
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('show'), 10);
+                
+                // Create Monaco Editor for diff display - use full available space
+                diffContainer.innerHTML = '<div id="diffEditor" style="flex: 1; min-height: 600px; border: 1px solid #d8dee4;"></div>';
+                
+                require.config({ paths: { vs: 'https://unpkg.com/monaco-editor@latest/min/vs' } });
+                require(['vs/editor/editor.main'], function () {
+                    const diffEditor = monaco.editor.createDiffEditor(document.getElementById('diffEditor'), {
+                        originalEditable: false,
+                        readOnly: true,
+                        renderSideBySide: true,
+                        automaticLayout: true,
+                        theme: 'vs',
+                        fontSize: 13
+                    });
+                    
+                    let originalContent = '';
+                    let modifiedContent = '';
+                    
+                    // Get actual file content from embedded data
+                    const fileData = window.fileContents && window.fileContents[filePath];
+                    
+                    if (fileStatus === 'A') {
+                        originalContent = '// This file does not exist in upstream';
+                        modifiedContent = fileData ? fileData.fork : 'File content not available';
+                    } else {
+                        originalContent = fileData ? fileData.upstream : 'Upstream content not available';
+                        modifiedContent = fileData ? fileData.fork : 'Fork content not available';
+                    }
+                    
+                    // Detect file type for syntax highlighting
+                    const extension = filePath.split('.').pop().toLowerCase();
+                    let language = 'plaintext';
+                    
+                    const languageMap = {
+                        'js': 'javascript',
+                        'ts': 'typescript', 
+                        'json': 'json',
+                        'md': 'markdown',
+                        'html': 'html',
+                        'css': 'css',
+                        'py': 'python',
+                        'sh': 'shell',
+                        'yml': 'yaml',
+                        'yaml': 'yaml',
+                        'xml': 'xml',
+                        'sql': 'sql',
+                        'php': 'php',
+                        'rb': 'ruby',
+                        'go': 'go',
+                        'java': 'java',
+                        'c': 'c',
+                        'cpp': 'cpp',
+                        'cs': 'csharp'
+                    };
+                    
+                    if (languageMap[extension]) {
+                        language = languageMap[extension];
+                    }
+                    
+                    const originalModel = monaco.editor.createModel(originalContent, language);
+                    const modifiedModel = monaco.editor.createModel(modifiedContent, language);
+                    
+                    diffEditor.setModel({
+                        original: originalModel,
+                        modified: modifiedModel
+                    });
+                });
+                
+            } catch (error) {
+                console.error('Error loading diff:', error);
+                diffContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #dc3545;">Error loading diff. Please try again.</div>';
+            }
+        }
+        
+        function closeDiff() {
+            const modal = document.getElementById('diffModal');
+            
+            // Smooth fade out
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                
+                // Clean up Monaco editor
+                const diffEditor = document.getElementById('diffEditor');
+                if (diffEditor) {
+                    diffEditor.innerHTML = '';
+                }
+            }, 300); // Match transition duration
+        }
+        
+        // Close modal when clicking outside or on close button
+        document.getElementById('diffModal').addEventListener('click', function(e) {
+            if (e.target === this || e.target.classList.contains('modal-close')) {
+                closeDiff();
+            }
+        });
+        
+        // Escape key to close modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDiff();
             }
         });
         
