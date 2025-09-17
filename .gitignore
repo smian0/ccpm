@@ -2,8 +2,7 @@
 tests/test-install
 
 # Generated diff reports
-override-diff-report.html
-node_modules/
-.playwright-mcp
 diff-report.html
 fork-comparison-report.html
+node_modules/
+.playwright-mcp
