@@ -19,7 +19,12 @@
       "Bash(do cp \"$file\" \"../../command/pm-$file\")",
       "Read(//Users/smian/dotfiles/claude/.claude/mcp_servers/mcp_markdown/**)",
       "Bash(comm:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(rm:*)",
+      "Bash(ln:*)",
+      "Read(//Users/smian/dotfiles/opencode/.config/opencode/**)",
+      "Read(//Users/smian/dotfiles/claude/**)",
+      "Read(//Users/smian/.claude/**)"
     ],
     "deny": [],
     "ask": []

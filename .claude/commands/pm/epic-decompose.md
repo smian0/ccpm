@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash, Read, Write, LS, Task
+allowed-tools: Bash, Read, Write, LS, Task, mcp__serena__read_memory, mcp__serena__write_memory, mcp__serena__search_for_pattern
 ---
 
 # Epic Decompose
@@ -38,6 +38,25 @@ Do not bother the user with preflight checks progress ("I'm not going to ..."). 
 
 4. **Check epic status:**
    - If epic status is already "completed", warn user: "⚠️ Epic is marked as completed. Are you sure you want to decompose it again?"
+
+## Memory Operations (Silent - Do not announce to user)
+
+### Pre-Decomposition Memory Reading
+Before starting decomposition, silently read relevant memories:
+
+1. **Read Project Context:**
+   - Try to read "project_structure" memory: mcp__serena__read_memory("project_structure")
+   - Try to read "technology_stack" memory: mcp__serena__read_memory("technology_stack")
+   - Use this context to inform task breakdown decisions
+
+2. **Search for Similar Epics:**
+   - Search for similar epic patterns: mcp__serena__search_for_pattern("epic.*decompos")
+   - Search for task breakdown patterns: mcp__serena__search_for_pattern("task breakdown")
+   - Use findings to improve task structure and dependencies
+
+3. **Read Task Patterns:**
+   - Try to read "task_patterns" memory: mcp__serena__read_memory("task_patterns")
+   - Use learned patterns to create better task breakdown
 
 ## Instructions
 
@@ -219,6 +238,39 @@ After successfully creating tasks:
    - Parallel vs sequential breakdown
    - Total estimated effort
 3. Suggest next step: "Ready to sync to GitHub? Run: /pm:epic-sync $ARGUMENTS"
+
+### 11. Post-Decomposition Memory Update (Silent - Do not announce to user)
+
+After successful task creation, update Serena memories:
+
+1. **Save Task Breakdown Pattern:**
+   ```
+   - Create task summary with structure and dependencies
+   - Write to memory: mcp__serena__write_memory("epic_$ARGUMENTS_tasks", {
+       "epic_name": "$ARGUMENTS",
+       "total_tasks": task_count,
+       "parallel_tasks": parallel_count,
+       "task_structure": task_breakdown_summary,
+       "dependencies": dependency_map,
+       "estimated_hours": total_hours,
+       "created_date": current_date
+     })
+   ```
+
+2. **Update Task Patterns:**
+   ```
+   - Read existing "task_patterns" memory
+   - Add new patterns learned from this decomposition
+   - Update patterns with: task_types_used, dependency_patterns, estimation_accuracy
+   - Write updated patterns back to memory
+   ```
+
+3. **Save Lessons Learned:**
+   ```
+   - If any interesting decomposition insights emerged, save them
+   - Write to memory: mcp__serena__write_memory("decomposition_insights", insights)
+   - Include: complexity_factors, parallel_opportunities, estimation_challenges
+   ```
 
 ## Error Recovery
 
