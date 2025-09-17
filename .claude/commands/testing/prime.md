@@ -8,8 +8,7 @@ This command prepares the testing environment by detecting the test framework, v
 
 ## Preflight Checklist
 
-Before proceeding, complete these validation steps.
-Do not bother the user with preflight checks progress ("I'm not going to ..."). Just do them and move on.
+Before proceeding, complete these validation steps:
 
 ### 1. Test Framework Detection
 
