@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash, Read, Write, LS, mcp__serena__read_memory, mcp__serena__write_memory, mcp__serena__search_for_pattern
+allowed-tools: Bash, Read, Write, LS
 ---
 
 # Issue Analyze
@@ -22,26 +22,6 @@ Analyze an issue to identify parallel work streams for maximum efficiency.
    ```bash
    test -f .claude/epics/*/$ARGUMENTS-analysis.md && echo "⚠️ Analysis already exists. Overwrite? (yes/no)"
    ```
-
-## Memory Operations (Silent - Do not announce to user)
-
-### Pre-Analysis Memory Reading
-Before starting analysis, silently read relevant memories:
-
-1. **Read Project Context:**
-   - Try to read "project_structure" memory: mcp__serena__read_memory("project_structure")
-   - Try to read "technology_stack" memory: mcp__serena__read_memory("technology_stack")
-   - Use this context to understand potential work streams
-
-2. **Search for Similar Issues:**
-   - Search for similar issue patterns: mcp__serena__search_for_pattern("issue.*analysis")
-   - Search for parallel work patterns: mcp__serena__search_for_pattern("parallel.*stream")
-   - Use findings to identify common work stream patterns
-
-3. **Read Related Epic Memory:**
-   - Extract epic name from issue path
-   - Try to read epic memory: mcp__serena__read_memory("epic_{epic_name}_tasks")
-   - Use epic context to understand how this issue fits into larger work
 
 ## Instructions
 
@@ -195,41 +175,6 @@ Files at risk of conflict:
 
 Next: Start work with /pm:issue-start $ARGUMENTS
 ```
-
-### 6. Post-Analysis Memory Update (Silent - Do not announce to user)
-
-After successful analysis, update Serena memories:
-
-1. **Save Issue Analysis:**
-   ```
-   - Save complete analysis to memory: mcp__serena__write_memory("issue_$ARGUMENTS_analysis", {
-       "issue_number": "$ARGUMENTS",
-       "work_streams": stream_details,
-       "parallelization_factor": efficiency_factor,
-       "total_estimated_hours": total_hours,
-       "parallel_estimated_hours": parallel_hours,
-       "conflict_risks": conflict_assessment,
-       "analyzed_date": current_date
-     })
-   ```
-
-2. **Update Work Stream Patterns:**
-   ```
-   - Read existing "work_stream_patterns" memory
-   - Add new patterns learned from this analysis
-   - Include: stream_types_identified, common_dependencies, conflict_patterns
-   - Write updated patterns back to memory
-   ```
-
-3. **Update Issue Analysis Patterns:**
-   ```
-   - Save analysis insights for future issues: mcp__serena__write_memory("analysis_insights", {
-       "issue_type": extracted_from_labels,
-       "complexity_indicators": identified_factors,
-       "parallelization_opportunities": discovered_patterns,
-       "estimation_accuracy": time_estimate_confidence
-     })
-   ```
 
 ## Important Notes
 

@@ -4,7 +4,7 @@ allowed-tools: Bash, Read, Write, LS, Task
 
 # Epic Start
 
-Launch parallel agents to work on epic tasks in a shared worktree.
+Launch parallel agents to work on epic tasks in a shared branch.
 
 ## Usage
 ```
@@ -22,26 +22,41 @@ Launch parallel agents to work on epic tasks in a shared worktree.
    Look for `github:` field in epic frontmatter.
    If missing: "❌ Epic not synced. Run: /pm:epic-sync $ARGUMENTS first"
 
-3. **Check for worktree:**
+3. **Check for branch:**
    ```bash
-   git worktree list | grep "epic-$ARGUMENTS"
+   git branch -a | grep "epic/$ARGUMENTS"
    ```
+
+4. **Check for uncommitted changes:**
+   ```bash
+   git status --porcelain
+   ```
+   If output is not empty: "❌ You have uncommitted changes. Please commit or stash them before starting an epic"
 
 ## Instructions
 
-### 1. Create or Enter Worktree
+### 1. Create or Enter Branch
 
-Follow `/rules/worktree-operations.md`:
+Follow `/rules/branch-operations.md`:
 
 ```bash
-# If worktree doesn't exist, create it
-if ! git worktree list | grep -q "epic-$ARGUMENTS"; then
+# Check for uncommitted changes
+if [ -n "$(git status --porcelain)" ]; then
+  echo "❌ You have uncommitted changes. Please commit or stash them before starting an epic."
+  exit 1
+fi
+
+# If branch doesn't exist, create it
+if ! git branch -a | grep -q "epic/$ARGUMENTS"; then
   git checkout main
   git pull origin main
-  git worktree add ../epic-$ARGUMENTS -b epic/$ARGUMENTS
-  echo "✅ Created worktree: ../epic-$ARGUMENTS"
+  git checkout -b epic/$ARGUMENTS
+  git push -u origin epic/$ARGUMENTS
+  echo "✅ Created branch: epic/$ARGUMENTS"
 else
-  echo "✅ Using existing worktree: ../epic-$ARGUMENTS"
+  git checkout epic/$ARGUMENTS
+  git pull origin epic/$ARGUMENTS
+  echo "✅ Using existing branch: epic/$ARGUMENTS"
 fi
 ```
 
@@ -81,7 +96,7 @@ Found {count} parallel streams:
   - Stream A: {description} (Agent-{id})
   - Stream B: {description} (Agent-{id})
 
-Launching agents in worktree: ../epic-$ARGUMENTS/
+Launching agents in branch: epic/$ARGUMENTS
 ```
 
 Use Task tool to launch each stream:
@@ -90,23 +105,23 @@ Task:
   description: "Issue #{issue} Stream {X}"
   subagent_type: "{agent_type}"
   prompt: |
-    Working in worktree: ../epic-$ARGUMENTS/
+    Working in branch: epic/$ARGUMENTS
     Issue: #{issue} - {title}
     Stream: {stream_name}
-    
+
     Your scope:
     - Files: {file_patterns}
     - Work: {stream_description}
-    
+
     Read full requirements from:
     - .claude/epics/$ARGUMENTS/{task_file}
     - .claude/epics/$ARGUMENTS/{issue}-analysis.md
-    
+
     Follow coordination rules in /rules/agent-coordination.md
-    
+
     Commit frequently with message format:
     "Issue #{issue}: {specific change}"
-    
+
     Update progress in:
     .claude/epics/$ARGUMENTS/updates/{issue}/stream-{X}.md
 ```
@@ -118,7 +133,6 @@ Create/update `.claude/epics/$ARGUMENTS/execution-status.md`:
 ```markdown
 ---
 started: {datetime}
-worktree: ../epic-$ARGUMENTS
 branch: epic/$ARGUMENTS
 ---
 
@@ -147,8 +161,8 @@ Agents launched successfully!
 Monitor progress:
   /pm:epic-status $ARGUMENTS
 
-View worktree changes:
-  cd ../epic-$ARGUMENTS && git status
+View branch changes:
+  git status
 
 Stop all agents:
   /pm:epic-stop $ARGUMENTS
@@ -170,7 +184,6 @@ As agents complete streams:
 ```
 🚀 Epic Execution Started: $ARGUMENTS
 
-Worktree: ../epic-$ARGUMENTS
 Branch: epic/$ARGUMENTS
 
 Launching {total} agents across {issue_count} issues:
@@ -199,23 +212,36 @@ If agent launch fails:
   Issue: #{issue}
   Stream: {stream}
   Error: {reason}
-  
+
 Continue with other agents? (yes/no)
 ```
 
-If worktree creation fails:
+If uncommitted changes are found:
 ```
-❌ Cannot create worktree
+❌ You have uncommitted changes. Please commit or stash them before starting an epic.
+
+To commit changes:
+  git add .
+  git commit -m "Your commit message"
+
+To stash changes:
+  git stash push -m "Work in progress"
+  # (Later restore with: git stash pop)
+```
+
+If branch creation fails:
+```
+❌ Cannot create branch
   {git error message}
-  
-Try: git worktree prune
-Or: Check existing worktrees with: git worktree list
+
+Try: git branch -d epic/$ARGUMENTS
+Or: Check existing branches with: git branch -a
 ```
 
 ## Important Notes
 
-- Follow `/rules/worktree-operations.md` for git operations
+- Follow `/rules/branch-operations.md` for git operations
 - Follow `/rules/agent-coordination.md` for parallel work
-- Agents work in the SAME worktree (not separate ones)
+- Agents work in the SAME branch (not separate branches)
 - Maximum parallel agents should be reasonable (e.g., 5-10)
 - Monitor system resources if launching many agents
