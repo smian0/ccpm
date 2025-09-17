@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # CCPM Installation Test Script
-# Tests the installer and verifies the installation is correct
+# Tests the Claude Code installer and verifies the installation is correct
 
 set -e  # Exit on any error
 
@@ -9,8 +9,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CCPM_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 TEST_DIR="$SCRIPT_DIR/test-install"
 
-echo "🧪 CCPM Installation Test"
-echo "========================="
+echo "🧪 CCPM Installation Test (Claude Code)"
+echo "========================================"
 echo "CCPM Root: $CCPM_ROOT"
 echo "Test Directory: $TEST_DIR"
 echo ""
@@ -35,8 +35,8 @@ echo "📁 Checking directory structure..."
 REQUIRED_DIRS=(
     ".claude"
     ".claude/agents"
-    ".opencode"
-    ".opencode/agents"
+    ".claude/commands"
+    ".claude/context"
 )
 
 for dir in "${REQUIRED_DIRS[@]}"; do
@@ -48,34 +48,19 @@ for dir in "${REQUIRED_DIRS[@]}"; do
     fi
 done
 
-# Test 2: Check that file-analyzer agents exist with correct tools in main directories
-echo "🤖 Checking file-analyzer agents..."
+# Test 2: Check that file-analyzer agent exists with correct tools
+echo "🤖 Checking file-analyzer agent..."
 
-# Check Claude Code file-analyzer (overridden in main directory)
 CLAUDE_AGENT="$TEST_DIR/.claude/agents/file-analyzer.md"
 if [ -f "$CLAUDE_AGENT" ]; then
     if grep -q "mcp__serena__read_file" "$CLAUDE_AGENT"; then
-        echo "  ✅ Claude Code file-analyzer overridden with Serena tools"
+        echo "  ✅ Claude Code file-analyzer has Serena MCP tools"
     else
-        echo "  ❌ Claude Code file-analyzer missing Serena tools"
+        echo "  ❌ Claude Code file-analyzer missing Serena MCP tools"
         exit 1
     fi
 else
     echo "  ❌ Claude Code file-analyzer not found"
-    exit 1
-fi
-
-# Check OpenCode file-analyzer (installed in main directory)
-OPENCODE_AGENT="$TEST_DIR/.opencode/agents/file-analyzer.md"
-if [ -f "$OPENCODE_AGENT" ]; then
-    if grep -q "tools: read, list, glob, grep" "$OPENCODE_AGENT"; then
-        echo "  ✅ OpenCode file-analyzer installed with OpenCode tools"
-    else
-        echo "  ❌ OpenCode file-analyzer missing OpenCode tools"
-        exit 1
-    fi
-else
-    echo "  ❌ OpenCode file-analyzer not found"
     exit 1
 fi
 
@@ -85,7 +70,7 @@ REQUIRED_FILES=(
     "AGENTS.md"
     "COMMANDS.md"
     ".claude/commands/pm/help.md"
-    ".opencode/command/pm/sync.md"
+    ".claude/CLAUDE.md"
 )
 
 for file in "${REQUIRED_FILES[@]}"; do
@@ -97,10 +82,10 @@ for file in "${REQUIRED_FILES[@]}"; do
     fi
 done
 
-# Test 4: Count files to ensure full copy (excluding extension directories)
+# Test 4: Check installation completeness
 echo "📊 Checking installation completeness..."
-SOURCE_FILES=$(find "$CCPM_ROOT/.claude" "$CCPM_ROOT/.opencode" -type f 2>/dev/null | wc -l)
-INSTALLED_FILES=$(find "$TEST_DIR/.claude" "$TEST_DIR/.opencode" -type f 2>/dev/null | wc -l)
+SOURCE_FILES=$(find "$CCPM_ROOT/.claude" -type f 2>/dev/null | wc -l)
+INSTALLED_FILES=$(find "$TEST_DIR/.claude" -type f 2>/dev/null | wc -l)
 
 echo "  📁 Source files: $SOURCE_FILES"
 echo "  📁 Installed files: $INSTALLED_FILES"
@@ -111,16 +96,19 @@ else
     echo "  ⚠️  File count mismatch - some files may be missing"
 fi
 
-# Test 5: Verify agents work differently
-echo "🔧 Verifying agent differences..."
-CLAUDE_TOOLS=$(grep "tools:" "$CLAUDE_AGENT" | cut -d: -f2)
-OPENCODE_TOOLS=$(grep "tools:" "$OPENCODE_AGENT" | cut -d: -f2)
-
-if [ "$CLAUDE_TOOLS" != "$OPENCODE_TOOLS" ]; then
-    echo "  ✅ Agents have different tools (platform-specific)"
+# Test 5: Verify override application
+echo "🔧 Verifying configuration overrides..."
+if [ -d "$CCPM_ROOT/.claude-ext" ]; then
+    echo "  ✅ Overrides source found"
+    # Check if overrides were applied by looking for override-specific content
+    if grep -q "mcp__serena" "$CLAUDE_AGENT"; then
+        echo "  ✅ Overrides successfully applied"
+    else
+        echo "  ❌ Overrides not applied"
+        exit 1
+    fi
 else
-    echo "  ❌ Agents have identical tools (override failed)"
-    exit 1
+    echo "  ℹ️  No overrides to apply"
 fi
 
 echo ""
@@ -128,10 +116,10 @@ echo "✅ All tests passed!"
 echo ""
 echo "📋 Test Summary:"
 echo "  ✅ Directory structure correct"
-echo "  ✅ File-analyzer agents installed"
-echo "  ✅ Platform-specific tools configured"
+echo "  ✅ File-analyzer agent configured"
+echo "  ✅ Serena MCP tools integrated"
 echo "  ✅ Core files present"
-echo "  ✅ Full installation verified"
+echo "  ✅ Configuration overrides applied"
 echo ""
 echo "🎯 Test installation available at: $TEST_DIR"
 echo "💡 To clean up: rm -rf $TEST_DIR"

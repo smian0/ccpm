@@ -1,21 +1,30 @@
 # Claude Code PM
 
+> **Fork Notice**: This is a fork of the original [Claude Code PM](https://github.com/automazeio/ccpm) repository with enhancements and customizations for OpenCode integration and improved parallel execution.
+
 [![Automaze](https://img.shields.io/badge/By-automaze.io-4b3baf)](https://automaze.io)
 &nbsp;
-[![Claude Code](https://img.shields.io/badge/+-Claude%20Code-d97757)](https://github.com/automazeio/ccpm/blob/main/README.md)
-[![GitHub Issues](https://img.shields.io/badge/+-GitHub%20Issues-1f2328)](https://github.com/automazeio/ccpm)
+[![Claude Code](https://img.shields.io/badge/+-Claude%20Code-d97757)](https://github.com/smian0/ccpm/blob/main/README.md)
+[![GitHub Issues](https://img.shields.io/badge/+-GitHub%20Issues-1f2328)](https://github.com/smian0/ccpm)
 &nbsp;
-[![MIT License](https://img.shields.io/badge/License-MIT-28a745)](https://github.com/automazeio/ccpm/blob/main/LICENSE)
+[![MIT License](https://img.shields.io/badge/License-MIT-28a745)](https://github.com/smian0/ccpm/blob/main/LICENSE)
 &nbsp;
 [![Follow on 𝕏](https://img.shields.io/badge/𝕏-@aroussi-1c9bf0)](http://x.com/intent/follow?screen_name=aroussi)
 &nbsp;
-[![Star this repo](https://img.shields.io/badge/★-Star%20this%20repo-e7b10b)](https://github.com/automazeio/ccpm)
+[![Star this repo](https://img.shields.io/badge/★-Star%20this%20repo-e7b10b)](https://github.com/smian0/ccpm)
 
-### Claude Code workflow to ship ~~faster~~ _better_ using spec-driven development, GitHub issues, Git worktrees, and mutiple AI agents running in parallel.
+### Claude Code workflow to ship ~~faster~~ _better_ using spec-driven development, GitHub issues, Git worktrees, and multiple AI agents running in parallel.
 
 Stop losing context. Stop blocking on tasks. Stop shipping bugs. This battle-tested system turns PRDs into epics, epics into GitHub issues, and issues into production code – with full traceability at every step.
 
 ![Claude Code PM](screenshot.webp)
+
+## Latest Updates (January 2025)
+
+- ✨ **Enhanced OpenCode Integration** - Full command and agent support with improved error handling
+- 🚀 **Parallel Execution Improvements** - Better worktree management and agent coordination
+- 🔧 **Configuration Refinements** - Cleaner setup process with validated paths
+- 📝 **Documentation Updates** - Comprehensive OpenCode troubleshooting guide
 
 ## Table of Contents
 
@@ -388,18 +397,18 @@ Teams using this system report:
 
    ```bash
    cd path/to/your/project/
-   curl -sSL https://raw.githubusercontent.com/automazeio/ccpm/main/ccpm.sh | bash
-   # or: wget -qO- https://raw.githubusercontent.com/automazeio/ccpm/main/ccpm.sh | bash
+   curl -sSL https://raw.githubusercontent.com/smian0/ccpm/main/ccpm.sh | bash
+   # or: wget -qO- https://raw.githubusercontent.com/smian0/ccpm/main/ccpm.sh | bash
    ```
 
    #### Windows (PowerShell)
    ```bash
    cd path/to/your/project/
-   iwr -useb https://raw.githubusercontent.com/automazeio/ccpm/main/ccpm.bat | iex
+   iwr -useb https://raw.githubusercontent.com/smian0/ccpm/main/ccpm.bat | iex
    ```
    > ⚠️ **IMPORTANT**: If you already have a `.claude` directory, clone this repository to a different directory and copy the contents of the cloned `.claude` directory to your project's `.claude` directory.
 
-   See full/other installation options in the [installation guide ›](https://github.com/automazeio/ccpm/tree/main/install)
+   See full/other installation options in the [installation guide ›](https://github.com/smian0/ccpm/tree/main/install)
 
 
 2. **Initialize the PM system**:
@@ -468,84 +477,6 @@ Watch as structured planning transforms into shipped code.
 ---
 
 ## OpenCode Configuration
-
-This project also includes a complete OpenCode configuration in the `.opencode/` directory, providing the same powerful PM system with OpenCode's tool ecosystem.
-
-### OpenCode Setup
-
-1. **Configure OpenCode**:
-   ```bash
-   # The opencode.json file is already configured with:
-   # - Permissions for file operations, bash, and web fetching
-   # - Anthropic provider with Claude models
-   # - MCP server for context7 (live documentation)
-   # - All agents and commands pre-configured
-   ```
-
-2. **Key Features**:
-   - **Live Documentation**: Context7 MCP server provides up-to-date API docs
-   - **All Agents**: Code analyzer, file analyzer, test runner, and parallel worker
-   - **Complete Commands**: All PM commands converted for OpenCode compatibility
-   - **Tool Mapping**: Claude tools mapped to OpenCode equivalents (Read → view, Task → agent, etc.)
-
-3. **Benefits of OpenCode Version**:
-   - **Enhanced Context**: Context7 provides live, version-specific documentation
-   - **MCP Integration**: Access to Model Context Protocol servers
-   - **Tool Ecosystem**: Native OpenCode tool integrations
-   - **Real-time Docs**: Always current API documentation and examples
-
-### Directory Structure Comparison
-
-| Claude Code | OpenCode | Description |
-|-------------|----------|-------------|
-| `.claude/` | `.opencode/` | Main configuration directory |
-| `settings.local.json` | `opencode.json` | Configuration file |
-| `.claude/agents/` | `.opencode/agents/` | Agent definitions |
-| `.claude/commands/` | `.opencode/commands/` | Command definitions |
-| `.claude/context/` | `.opencode/context/` | Project context |
-| `.claude/rules/` | `.opencode/rules/` | Standard patterns |
-| `.claude/scripts/` | `.opencode/scripts/` | Shell scripts |
-
-### Using OpenCode Commands
-
-All commands work the same way with OpenCode:
-
-```bash
-# Initialize PM system
-/pm:init
-
-# Create PRDs and epics
-/pm:prd-new feature-name
-/pm:prd-parse feature-name
-
-# Context management
-/context:create
-/context:prime
-/context:update
-
-# Issue management works identically
-/pm:issue-start 1234
-/pm:status
-/pm:next
-```
-
-### Context7 Integration
-
-The OpenCode configuration includes context7 MCP server for enhanced documentation:
-
-- **Live API Docs**: Always current documentation for frameworks
-- **Code Examples**: Up-to-date examples and patterns  
-- **Version-Specific**: Docs match your project's dependency versions
-- **Automatic**: No manual documentation updates needed
-
-### Migration from Claude Code
-
-If you're using the Claude Code version, both configurations work simultaneously:
-
-1. **Parallel Usage**: Both `.claude/` and `.opencode/` can coexist
-2. **Gradual Migration**: Test OpenCode features while keeping Claude Code working
-3. **Tool Benefits**: Leverage context7 and MCP servers in OpenCode
-4. **Same Workflows**: Identical command structure and functionality
 
 ---
 
@@ -707,6 +638,37 @@ tail -f ~/.local/share/opencode/log/*.log
 
 Following these lessons learned will help you avoid the common pitfalls and get OpenCode integrated smoothly with CCPM.
 
+### 🎯 OpenCode CLI Command Usage
+
+#### Running Commands from CLI
+The OpenCode `run --command` flag has specific requirements:
+
+```bash
+# ✅ WORKS: Simple command names without slashes
+opencode run --command "prompt"
+opencode run --command "code-rabbit"
+
+# ❌ FAILS: Commands with slashes or nested paths
+opencode run --command "/prompt"          # Leading slash fails
+opencode run --command "pm/help"          # Nested path fails  
+opencode run --command "/pm/help"         # Both fail
+```
+
+**Key Points:**
+- Commands are registered with slashes (e.g., `/pm/help`) but `--command` expects names without slashes
+- Nested commands don't work with `--command` flag - use interactive TUI instead
+- For complex workflows, enter OpenCode TUI with `opencode` then use full command syntax
+
+#### Command Discovery
+```bash
+# List available commands
+opencode run --help
+
+# Enter interactive mode for full command access
+opencode
+# Then use: /pm/help, /context/prime, etc.
+```
+
 ---
 
 ## Support This Project
@@ -715,7 +677,7 @@ Claude Code PM was developed at [Automaze](https://automaze.io) **for developers
 
 If Claude Code PM helps your team ship better software:
 
-- ⭐ **[Star this repository](https://github.com/automazeio/ccpm)** to show your support
+- ⭐ **[Star this repository](https://github.com/smian0/ccpm)** to show your support
 - 🐦 **[Follow @aroussi on X](https://x.com/aroussi)** for updates and tips
 
 
@@ -729,4 +691,4 @@ If Claude Code PM helps your team ship better software:
 
 ## Star History
 
-![Star History Chart](https://api.star-history.com/svg?repos=automazeio/ccpm)
+![Star History Chart](https://api.star-history.com/svg?repos=smian0/ccpm)
