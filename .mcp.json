@@ -8,6 +8,18 @@
         "description": "Browser automation & E2E testing - real browser interaction, visual testing",
         "purpose": "browser-testing",
         "scope": "ui"
+      },
+      "markdown": {
+        "args": [
+          "run",
+          "--script",
+          "/Users/smian/.claude/mcp_servers/mcp_markdown/server.py"
+        ],
+        "command": "uv",
+        "description": "Unified markdown processing - MQ selectors, Obsidian features, intelligent caching, document linting",
+        "purpose": "document-quality",
+        "scope": "documentation",
+        "type": "stdio"
       }
     }
   }

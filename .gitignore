@@ -7,3 +7,5 @@ reports/
 node_modules/
 .playwright-mcp
 tests/logs
+.claude/settings.local.json
+.mcp.json
